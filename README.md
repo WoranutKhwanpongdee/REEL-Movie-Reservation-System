@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="frontend/public/logo-transparent.png" alt="REEL Cinema Logo" width="360" />
-</p>
 
 <h1 align="center">🎬 REEL — Dark Cinematic Movie Reservation System</h1>
 
