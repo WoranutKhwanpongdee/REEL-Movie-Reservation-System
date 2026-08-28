@@ -184,6 +184,76 @@ npm run dev
 
 ---
 
+## 🚀 Production Deployment
+
+The production setup uses Vercel for the Next.js frontend, Render for the FastAPI backend, and Neon PostgreSQL for the database.
+
+### 1. Create the PostgreSQL database
+
+Create a PostgreSQL project in [Neon](https://neon.tech) and copy its connection string. It should look similar to:
+
+```text
+postgresql://username:password@host/neondb?sslmode=require
+```
+
+### 2. Deploy the backend to Render
+
+Create a **Web Service** connected to this repository with these settings:
+
+| Setting | Value |
+| :--- | :--- |
+| Root Directory | `backend` |
+| Runtime | Python 3 |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+
+Add these environment variables to the Render service:
+
+```text
+DATABASE_URL=<Neon PostgreSQL connection string>
+SECRET_KEY=<long random secret>
+PYTHON_VERSION=3.11.9
+FRONTEND_URL=https://<your-vercel-domain>.vercel.app
+```
+
+The backend creates database tables automatically on startup. To insert the sample movies, cinemas, showtimes, seats, and accounts, run the seed script once from a machine that can connect to Neon:
+
+```bash
+cd backend
+python scripts/seed.py
+```
+
+Verify the backend deployment at:
+
+```text
+https://<your-render-service>.onrender.com/api/health
+https://<your-render-service>.onrender.com/api/movies
+```
+
+### 3. Deploy the frontend to Vercel
+
+Create a Vercel project connected to this repository and set **Root Directory** to `frontend`. Add this Production environment variable:
+
+```text
+NEXT_PUBLIC_API_URL=https://<your-render-service>.onrender.com
+```
+
+Do not append `/api` to `NEXT_PUBLIC_API_URL`. The frontend adds the API paths itself. Redeploy the Vercel project after changing environment variables because they are read during the build.
+
+The deployed frontend must also be configured in Render as `FRONTEND_URL`, without a trailing slash, for example:
+
+```text
+FRONTEND_URL=https://reel-five-blush.vercel.app
+```
+
+### Production notes
+
+* Use PostgreSQL for production. The local SQLite file `backend/reel.db` is intended for development only.
+* Run `python scripts/seed.py` only for initial setup because it clears existing data before inserting sample records.
+* Render Free services may sleep after inactivity, so the first request can take several seconds.
+
+---
+
 ## 🌐 Endpoints & Access
 
 | Service | URL | Description |
