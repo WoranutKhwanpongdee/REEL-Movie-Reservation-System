@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Film,
+  User,
 } from "lucide-react";
 
 export default function BookShowtimePage() {
